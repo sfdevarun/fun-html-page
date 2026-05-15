@@ -1,57 +1,191 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<title>Hiiiiii</title>
-<style>
-p {
-text-align: center;
-font-size: 32px;
-font-family: Candara, Oswald;
-}
-img {
-display: block;
-margin: 0 auto;
-width: 25%;
-}
-</style>
-</head>
-<body>
-<p>Can we hang out soon?</p>
-<img src="https://media.tenor.com/zGm5acSjHCIAAAAM/cat-begging.gif">
-</body>
-<title>Botões</title>
-<style>
-#botao1 {
-position: fixed;
-top: 70%;
-left: 55%;
-transform: translate(-50%, -50%);
-}
-#botao2 {
-position: absolute;
- left: 39%;
-  top: 68%;
-}
-</style>
-</head>
-<body>
-<button id="botao1">YES BBY!</button>
-<button id="botao2">NO</button>
-<script>
-const button2 = document.getElementById('botao2');
-let left = 40;
-button2.addEventListener('mouseover', function() {
-  if(left == 40){
-    left = 44;
-  }else{
-    left = 40;
-  }
-  this.style.left = left + '%';
-});
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hang Out?</title>
+  <meta name="description" content="A cute little page with a sweet invitation." />
+  <style>
+    :root {
+      --bg1: #fff1f2;
+      --bg2: #ffe4e6;
+      --card: rgba(255, 255, 255, 0.8);
+      --text: #3f3f46;
+      --accent: #e11d48;
+      --accent-dark: #be123c;
+      --yes: #16a34a;
+      --yes-dark: #15803d;
+      --no: #6b7280;
+    }
 
-</script>
-<script>document.getElementById('botao1').addEventListener('click', function() {
-alert('YAYY THANK U LOVE U');
-});
-</script>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top right, var(--bg2), var(--bg1));
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: min(560px, 92vw);
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(225, 29, 72, 0.15);
+      padding: 26px 22px 28px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.5rem, 2.4vw, 2rem);
+      color: var(--accent-dark);
+    }
+
+    p {
+      margin: 0 0 18px;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    img {
+      width: min(250px, 70vw);
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      margin: 8px auto 18px;
+      display: block;
+    }
+
+    .buttons {
+      position: relative;
+      height: 86px;
+      margin-top: 2px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.2s ease;
+      color: white;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    #yesBtn {
+      background: linear-gradient(90deg, var(--yes), var(--yes-dark));
+      position: absolute;
+      left: 50%;
+      transform: translateX(-115%);
+    }
+
+    #yesBtn:hover {
+      transform: translateX(-115%) translateY(-2px);
+    }
+
+    #noBtn {
+      background: linear-gradient(90deg, #9ca3af, var(--no));
+      position: absolute;
+      left: 50%;
+      transform: translateX(15%);
+      pointer-events: none;
+      user-select: none;
+      transition: left 0.08s linear, top 0.08s linear;
+    }
+
+    @media (max-width: 450px) {
+      #yesBtn,
+      #noBtn {
+        position: static;
+        transform: none !important;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Hi Simran :)</h1>
+    <p>Will you go on a date with me?</p>
+    <img src="https://media.tenor.com/zGm5acSjHCIAAAAM/cat-begging.gif" alt="Cute cat asking to hang out" />
+
+    <div class="buttons">
+      <button id="yesBtn">YESSS!</button>
+      <button id="noBtn">NO</button>
+    </div>
+  </main>
+
+  <script>
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const buttonsWrap = document.querySelector(".buttons");
+
+    noBtn.setAttribute("tabindex", "-1");
+    noBtn.setAttribute("aria-hidden", "true");
+
+    function moveNoButtonAway() {
+      if (window.innerWidth <= 450 || !buttonsWrap) {
+        noBtn.style.left = "50%";
+        noBtn.style.top = "0px";
+        return;
+      }
+
+      const wrapRect = buttonsWrap.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+      const maxLeft = wrapRect.width - noRect.width;
+      const maxTop = Math.max(0, wrapRect.height - noRect.height);
+
+      const randomLeft = Math.max(0, Math.random() * maxLeft);
+      const randomTop = Math.random() * maxTop;
+
+      noBtn.style.left = `${randomLeft}px`;
+      noBtn.style.top = `${randomTop}px`;
+      noBtn.style.transform = "none";
+    }
+
+    document.addEventListener("mousemove", (event) => {
+      if (window.innerWidth <= 450) {
+        return;
+      }
+
+      const noRect = noBtn.getBoundingClientRect();
+      const nearestX = Math.max(noRect.left, Math.min(event.clientX, noRect.right));
+      const nearestY = Math.max(noRect.top, Math.min(event.clientY, noRect.bottom));
+      const dx = event.clientX - nearestX;
+      const dy = event.clientY - nearestY;
+      const distance = Math.hypot(dx, dy);
+
+      if (distance < 120) {
+        moveNoButtonAway();
+      }
+    });
+
+    document.addEventListener("touchstart", moveNoButtonAway, { passive: true });
+
+    yesBtn.addEventListener("click", () => {
+      alert("YAYY THANK U SIMRAN :)");
+    });
+
+  </script>
 </body>
 </html>
