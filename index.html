@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hang Out?</title>
+  <title>Hang Out? ❤️</title>
   <meta name="description" content="A cute little page with a sweet invitation." />
   <style>
     :root {
@@ -108,30 +108,33 @@
     }
 
     @media (max-width: 450px) {
-      #yesBtn,
+      #yesBtn {
+        left: 18%;
+        top: 0;
+        transform: none;
+      }
+
       #noBtn {
-        position: static;
-        transform: none !important;
+        left: 54%;
+        top: 0;
+        transform: none;
       }
 
       .buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        height: auto;
+        height: 130px;
       }
     }
   </style>
 </head>
 <body>
   <main class="card">
-    <h1>Hi Simran :)</h1>
-    <p>Will you go on a date with me?</p>
+    <h1>Hi Simran 😊</h1>
+    <p>Will you go on a date with me? 💌</p>
     <img src="https://media.tenor.com/zGm5acSjHCIAAAAM/cat-begging.gif" alt="Cute cat asking to hang out" />
 
     <div class="buttons">
-      <button id="yesBtn">YESSS!</button>
-      <button id="noBtn">NO</button>
+      <button id="yesBtn">YESSS! 💚</button>
+      <button id="noBtn">NO 🙈</button>
     </div>
   </main>
 
@@ -144,9 +147,7 @@
     noBtn.setAttribute("aria-hidden", "true");
 
     function moveNoButtonAway() {
-      if (window.innerWidth <= 450 || !buttonsWrap) {
-        noBtn.style.left = "50%";
-        noBtn.style.top = "0px";
+      if (!buttonsWrap) {
         return;
       }
 
@@ -183,7 +184,7 @@
     document.addEventListener("touchstart", moveNoButtonAway, { passive: true });
 
     yesBtn.addEventListener("click", () => {
-      alert("YAYY THANK U SIMRAN :)");
+      alert("YAYY THANK U SIMRAN 🥹❤️");
     });
 
   </script>
