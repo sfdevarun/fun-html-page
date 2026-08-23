@@ -66,7 +66,7 @@
 
     .buttons {
       position: relative;
-      height: 86px;
+      height: 160px;
       margin-top: 2px;
     }
 
@@ -82,47 +82,27 @@
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
     }
 
-    button:hover {
-      transform: translateY(-2px);
-    }
-
     #yesBtn {
       background: linear-gradient(90deg, var(--yes), var(--yes-dark));
       position: absolute;
-      left: 50%;
-      transform: translateX(-115%);
+      left: 12px;
+      top: 12px;
+      z-index: 2;
     }
 
     #yesBtn:hover {
-      transform: translateX(-115%) translateY(-2px);
+      transform: translateY(-2px);
     }
 
     #noBtn {
       background: linear-gradient(90deg, #9ca3af, var(--no));
       position: absolute;
-      left: 50%;
-      transform: translateX(15%);
+      right: 12px;
+      bottom: 12px;
       pointer-events: none;
       user-select: none;
+      z-index: 1;
       transition: left 0.08s linear, top 0.08s linear;
-    }
-
-    @media (max-width: 450px) {
-      #yesBtn {
-        left: 18%;
-        top: 0;
-        transform: none;
-      }
-
-      #noBtn {
-        left: 54%;
-        top: 0;
-        transform: none;
-      }
-
-      .buttons {
-        height: 130px;
-      }
     }
   </style>
 </head>
@@ -146,22 +126,80 @@
     noBtn.setAttribute("tabindex", "-1");
     noBtn.setAttribute("aria-hidden", "true");
 
+    const BUTTON_GAP = 16;
+
+    function overlapsYes(left, top, noWidth, noHeight) {
+      const yesLeft = yesBtn.offsetLeft;
+      const yesTop = yesBtn.offsetTop;
+      const yesRight = yesLeft + yesBtn.offsetWidth;
+      const yesBottom = yesTop + yesBtn.offsetHeight;
+      const noRight = left + noWidth;
+      const noBottom = top + noHeight;
+
+      return !(
+        noRight + BUTTON_GAP <= yesLeft ||
+        left >= yesRight + BUTTON_GAP ||
+        noBottom + BUTTON_GAP <= yesTop ||
+        top >= yesBottom + BUTTON_GAP
+      );
+    }
+
+    function setNoPosition(left, top) {
+      noBtn.style.left = `${left}px`;
+      noBtn.style.top = `${top}px`;
+      noBtn.style.right = "auto";
+      noBtn.style.bottom = "auto";
+      noBtn.style.transform = "none";
+    }
+
     function moveNoButtonAway() {
       if (!buttonsWrap) {
         return;
       }
 
-      const wrapRect = buttonsWrap.getBoundingClientRect();
-      const noRect = noBtn.getBoundingClientRect();
-      const maxLeft = wrapRect.width - noRect.width;
-      const maxTop = Math.max(0, wrapRect.height - noRect.height);
+      const wrapWidth = buttonsWrap.clientWidth;
+      const wrapHeight = buttonsWrap.clientHeight;
+      const noWidth = noBtn.offsetWidth;
+      const noHeight = noBtn.offsetHeight;
+      const maxLeft = Math.max(0, wrapWidth - noWidth);
+      const maxTop = Math.max(0, wrapHeight - noHeight);
 
-      const randomLeft = Math.max(0, Math.random() * maxLeft);
-      const randomTop = Math.random() * maxTop;
+      for (let attempt = 0; attempt < 80; attempt += 1) {
+        const left = Math.random() * maxLeft;
+        const top = Math.random() * maxTop;
 
-      noBtn.style.left = `${randomLeft}px`;
-      noBtn.style.top = `${randomTop}px`;
-      noBtn.style.transform = "none";
+        if (!overlapsYes(left, top, noWidth, noHeight)) {
+          setNoPosition(left, top);
+          return;
+        }
+      }
+
+      const yesLeft = yesBtn.offsetLeft;
+      const yesTop = yesBtn.offsetTop;
+      const yesRight = yesLeft + yesBtn.offsetWidth;
+      const yesBottom = yesTop + yesBtn.offsetHeight;
+      const fallbacks = [
+        { left: yesRight + BUTTON_GAP, top: yesTop },
+        { left: yesLeft - noWidth - BUTTON_GAP, top: yesTop },
+        { left: yesLeft, top: yesBottom + BUTTON_GAP },
+        { left: yesLeft, top: yesTop - noHeight - BUTTON_GAP },
+        { left: maxLeft, top: 0 },
+        { left: 0, top: maxTop },
+        { left: maxLeft, top: maxTop },
+        { left: 0, top: 0 },
+      ];
+
+      for (const spot of fallbacks) {
+        const left = Math.min(maxLeft, Math.max(0, spot.left));
+        const top = Math.min(maxTop, Math.max(0, spot.top));
+
+        if (!overlapsYes(left, top, noWidth, noHeight)) {
+          setNoPosition(left, top);
+          return;
+        }
+      }
+
+      setNoPosition(yesLeft < wrapWidth / 2 ? maxLeft : 0, yesTop < wrapHeight / 2 ? maxTop : 0);
     }
 
     document.addEventListener("mousemove", (event) => {
@@ -182,6 +220,24 @@
     });
 
     document.addEventListener("touchstart", moveNoButtonAway, { passive: true });
+
+    window.addEventListener("load", () => {
+      if (overlapsYes(noBtn.offsetLeft, noBtn.offsetTop, noBtn.offsetWidth, noBtn.offsetHeight)) {
+        moveNoButtonAway();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      const maxLeft = Math.max(0, buttonsWrap.clientWidth - noBtn.offsetWidth);
+      const maxTop = Math.max(0, buttonsWrap.clientHeight - noBtn.offsetHeight);
+      const left = Math.min(maxLeft, Math.max(0, noBtn.offsetLeft));
+      const top = Math.min(maxTop, Math.max(0, noBtn.offsetTop));
+      setNoPosition(left, top);
+
+      if (overlapsYes(left, top, noBtn.offsetWidth, noBtn.offsetHeight)) {
+        moveNoButtonAway();
+      }
+    });
 
     yesBtn.addEventListener("click", () => {
       alert("Confirmed. Please arrive with gossips and an empty stomach Sanjana 🎉");
